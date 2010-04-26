@@ -1,0 +1,11 @@
+*.suo
+*.user
+bin
+Debug
+Release
+_ReSharper*
+obj
+TestResults
+*.pdb
+*.exe
+

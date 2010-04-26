@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ActionContainer", "ActionContainer\ActionContainer.csproj", "{34006D71-ECF7-4113-A997-A7C88B838140}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ActionContainer.Sample", "ActionContainer.Sample\ActionContainer.Sample.csproj", "{E7FA1097-4B3C-42F2-9BBB-8487F83B5D7C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{34006D71-ECF7-4113-A997-A7C88B838140}.Debug|x86.ActiveCfg = Debug|x86
+		{34006D71-ECF7-4113-A997-A7C88B838140}.Debug|x86.Build.0 = Debug|x86
+		{34006D71-ECF7-4113-A997-A7C88B838140}.Release|x86.ActiveCfg = Release|x86
+		{34006D71-ECF7-4113-A997-A7C88B838140}.Release|x86.Build.0 = Release|x86
+		{E7FA1097-4B3C-42F2-9BBB-8487F83B5D7C}.Debug|x86.ActiveCfg = Debug|x86
+		{E7FA1097-4B3C-42F2-9BBB-8487F83B5D7C}.Debug|x86.Build.0 = Debug|x86
+		{E7FA1097-4B3C-42F2-9BBB-8487F83B5D7C}.Release|x86.ActiveCfg = Release|x86
+		{E7FA1097-4B3C-42F2-9BBB-8487F83B5D7C}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
