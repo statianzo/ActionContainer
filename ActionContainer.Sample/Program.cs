@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Reflection;
 using Autofac;
 
 namespace ActionContainer.Sample
@@ -11,13 +9,18 @@ namespace ActionContainer.Sample
 		private static void Main()
 		{
 			var builder = new ContainerBuilder();
+			var serviceProvider = new AutofacRegistrationService(builder);
+			IContainer container = null;
+			var resolver = new AutofacResolvingService(() => container);
+			new ActionContainerBootstrapper().InitializeContainer(serviceProvider, Assembly.GetExecutingAssembly());
+
 			builder.RegisterAssemblyTypes(typeof(Program).Assembly)
 				.AssignableTo<IDependOnSomething>()
-				.WithProperty("ActionContainer", new ActionContainer())
+				.WithProperty("ServiceAgent", new ServiceAgent(resolver))
 				.AsImplementedInterfaces();
 
 
-			IContainer container = builder.Build();
+			container = builder.Build();
 			var depender = container.Resolve<IDependOnSomething>();
 			depender.DoYourThing();
 		}
@@ -25,36 +28,22 @@ namespace ActionContainer.Sample
 
 	public class Needy : IDependOnSomething
 	{
-		public dynamic ActionContainer { get; set; }
+		public dynamic ServiceAgent { get; set; }
 
 		public void DoYourThing()
 		{
 			//Void call
-			ActionContainer.VoidMethod(23);
-			//Call that returns an integer
-			int i = ActionContainer.GiveMeAnInt(40);
-			Console.WriteLine("{0} - {1}", i, i.GetType());
-			//Call that returns a string
-			string s = ActionContainer.WhatAboutAString(938);
-			Console.WriteLine("{0} - {1}", s, s.GetType());
+			ServiceAgent.SayHello("Jason");
 
-			//Missing method
-			try
-			{
-				bool q = ActionContainer.CanYouBoolMe("Hello");
-			}
-			catch (MissingMethodException e)
-			{
-				Console.WriteLine(e.Message);
-			}
-
-
+			//Receive an int
+			int rand = ServiceAgent.GenerateRandom();
+			Console.WriteLine("Random of {0}", rand);
 		}
 	}
 
 	public interface IDependOnSomething
 	{
-		dynamic ActionContainer { get; set; }
+		dynamic ServiceAgent { get; set; }
 		void DoYourThing();
 	}
 }
