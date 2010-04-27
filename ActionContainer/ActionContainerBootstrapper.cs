@@ -10,7 +10,6 @@ namespace ActionContainer
 {
 	public class ActionContainerBootstrapper
 	{
-
 		public void InitializeContainer(IActionContainerRegistrationService registrationService, Assembly assembly)
 		{
 			RegisterProvidersAndDescriptors(registrationService, assembly);
@@ -21,13 +20,18 @@ namespace ActionContainer
 			var types = assembly
 				.GetTypes()
 				.Where(t => typeof(IActionProvider).IsAssignableFrom(t));
-			foreach (var t in types)
-			{
-				var key = Guid.NewGuid().ToString();
-				registrationService.Register(t, typeof(IActionProvider), key);
-				var actionDescriptors = DescriptorsFromType(t, key);
-				registrationService.RegisterInstance(actionDescriptors, typeof(IEnumerable<MethodDescriptor>), "MethodDescriptors");
-			}
+
+			var testTypes = types.ToList();
+
+			var methodDescriptors = testTypes.SelectMany(t =>
+				{
+					var key = Guid.NewGuid().ToString();
+					registrationService.Register(t, typeof(IActionProvider), key);
+					var actionDescriptors = DescriptorsFromType(t, key);
+					return actionDescriptors;
+				}).ToList();
+
+			registrationService.RegisterInstance(methodDescriptors, typeof(IEnumerable<MethodDescriptor>), "MethodDescriptors");
 		}
 
 		private static IEnumerable<MethodDescriptor> DescriptorsFromType(Type type, string key)
@@ -41,8 +45,6 @@ namespace ActionContainer
 					descriptors.Add(new FuncDescriptor(m, key) { Func = LambdaBuilder.CreateFunction(m) });
 			}
 			return descriptors;
-				   
-
 		}
 	}
 }

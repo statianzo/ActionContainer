@@ -55,7 +55,7 @@ namespace ActionContainer
 							&& parameterTypes.SequenceEqual(x.ParameterTypes));
 			if (isDiscarded)
 			{
-				var actions = filtered.Where(x => x is ActionDescriptor).Cast<ActionDescriptor>();
+				var actions = filtered.OfType<ActionDescriptor>();
 				var count = actions.Count();
 				if (count > 1)
 					throw new AmbiguousMatchException("Ambiguous Action Match");
@@ -70,8 +70,7 @@ namespace ActionContainer
 			}
 			else
 			{
-
-				var funcs = filtered.Where(x => x is FuncDescriptor).Cast<FuncDescriptor>();
+				var funcs = filtered.OfType<FuncDescriptor>();
 				result = new ServiceAgent(_resolvingService) { PossibleMethods = funcs, Args = args };
 			}
 			return true;

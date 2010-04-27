@@ -9,7 +9,10 @@ namespace ActionContainer.Sample
 		{
 			Console.WriteLine("Hello, {0}", name);
 		}
+	}
 
+	public class RandomMan : IActionProvider
+	{
 		public int GenerateRandom()
 		{
 			var random = new Random();
