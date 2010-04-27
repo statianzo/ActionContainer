@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using ActionContainer.Actions;
 using ActionContainer.Framework;
@@ -8,22 +9,40 @@ using ActionContainer.Services;
 
 namespace ActionContainer
 {
-	public class ActionContainerBootstrapper
+	public interface IActionContainerConfiguration
 	{
+		IActionContainerConfiguration ExcludeMethods(Expression<Func<MethodInfo, bool>> filter);
+		IActionContainerConfiguration IgnoreMethodsDeclaredBy<T>();
+	}
+
+	public class ActionContainerBootstrapper : IActionContainerConfiguration
+	{
+		private readonly CompositeFilter<MethodInfo> _methodFilters = new CompositeFilter<MethodInfo>();
+
+		public ActionContainerBootstrapper(Action<ActionContainerBootstrapper> configure) : this()
+		{
+			configure(this);
+		}
+
+		public ActionContainerBootstrapper()
+		{
+			_methodFilters.Excludes += m => m.DeclaringType == typeof (object);
+			_methodFilters.Excludes += m => m.ContainsGenericParameters;
+			_methodFilters.Excludes += m => m.IsSpecialName;
+		}
+
 		public void InitializeContainer(IActionContainerRegistrationService registrationService, Assembly assembly)
 		{
 			RegisterProvidersAndDescriptors(registrationService, assembly);
 		}
 
-		private static void RegisterProvidersAndDescriptors(IActionContainerRegistrationService registrationService, Assembly assembly)
+		private void RegisterProvidersAndDescriptors(IActionContainerRegistrationService registrationService, Assembly assembly)
 		{
 			var types = assembly
 				.GetTypes()
 				.Where(t => typeof(IActionProvider).IsAssignableFrom(t));
 
-			var testTypes = types.ToList();
-
-			var methodDescriptors = testTypes.SelectMany(t =>
+			var methodDescriptors = types.SelectMany(t =>
 				{
 					var key = Guid.NewGuid().ToString();
 					registrationService.Register(t, typeof(IActionProvider), key);
@@ -34,17 +53,27 @@ namespace ActionContainer
 			registrationService.RegisterInstance(methodDescriptors, typeof(IEnumerable<MethodDescriptor>), "MethodDescriptors");
 		}
 
-		private static IEnumerable<MethodDescriptor> DescriptorsFromType(Type type, string key)
+		private IEnumerable<MethodDescriptor> DescriptorsFromType(Type type, string key)
 		{
-			var descriptors = new List<MethodDescriptor>();
-			foreach (var m in type.GetMethods())
-			{
-				if (m.ReturnType == typeof(void))
-					descriptors.Add(new ActionDescriptor(m, key) { Action = LambdaBuilder.CreateAction(m) });
-				else
-					descriptors.Add(new FuncDescriptor(m, key) { Func = LambdaBuilder.CreateFunction(m) });
-			}
-			return descriptors;
+			return type.GetMethods()
+				.Where(_methodFilters.Matches)
+				.Select(
+					m =>
+					m.ReturnType == typeof(void)
+						? (MethodDescriptor)new ActionDescriptor(m, key)
+						: new FuncDescriptor(m, key)).ToList();
+		}
+
+		public IActionContainerConfiguration IgnoreMethodsDeclaredBy<T>()
+		{
+			ExcludeMethods(m => m.DeclaringType == typeof(T));
+			return this;
+		}
+
+		public IActionContainerConfiguration ExcludeMethods(Expression<Func<MethodInfo, bool>> filter)
+		{
+			_methodFilters.Excludes += filter;
+			return this;
 		}
 	}
 }

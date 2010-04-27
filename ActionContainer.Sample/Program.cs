@@ -12,7 +12,13 @@ namespace ActionContainer.Sample
 			var serviceProvider = new AutofacRegistrationService(builder);
 			IContainer container = null;
 			var resolver = new AutofacResolvingService(() => container);
-			new ActionContainerBootstrapper().InitializeContainer(serviceProvider, Assembly.GetExecutingAssembly());
+			new ActionContainerBootstrapper(x =>
+				{
+					x.IgnoreMethodsDeclaredBy<object>();
+					x.IgnoreMethodsDeclaredBy<MarshalByRefObject>();
+					x.IgnoreMethodsDeclaredBy<IDisposable>();
+				})
+				.InitializeContainer(serviceProvider, Assembly.GetExecutingAssembly());
 
 			builder.RegisterAssemblyTypes(typeof(Program).Assembly)
 				.AssignableTo<IDependOnSomething>()
