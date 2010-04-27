@@ -24,4 +24,4 @@ For example,
 
 The first call to `ServiceAgent.SayHello("Jason");` will locate an `IActionProvider` of a void SayHello method that takes one string argument.
 
-The call `int rand = ServiceAgent.GenerateRandom();' will locate an `IActionProvider` with a method GenerateRandom with no arguments that returns an integer.  
+The call `int rand = ServiceAgent.GenerateRandom();` will locate an `IActionProvider` with a method GenerateRandom with no arguments that returns an integer.  
