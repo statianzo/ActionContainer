@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ExpressionPerformanceTest.cs" />
+    <Compile Include="LambdaBuilderTests.cs" />
     <Compile Include="ServiceAgentTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
