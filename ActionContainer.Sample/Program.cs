@@ -35,6 +35,8 @@ namespace ActionContainer.Sample
 			//Void call
 			ServiceAgent.SayHello("Jason");
 
+			ServiceAgent.SayHello();
+
 			//Receive an int
 			int rand = ServiceAgent.GenerateRandom();
 			Console.WriteLine("Random of {0}", rand);

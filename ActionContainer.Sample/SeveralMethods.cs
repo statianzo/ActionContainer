@@ -9,6 +9,11 @@ namespace ActionContainer.Sample
 		{
 			Console.WriteLine("Hello, {0}", name);
 		}
+
+		public void SayHello()
+		{
+			Console.WriteLine("Hello to you");
+		}
 	}
 
 	public class RandomMan : IActionProvider
