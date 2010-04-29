@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using ActionContainer.Framework;
 
 namespace ActionContainer.Actions
 {
@@ -25,15 +26,21 @@ namespace ActionContainer.Actions
 
 	class ActionDescriptor : MethodDescriptor
 	{
-		public ActionDescriptor(MethodInfo methodInfo, string key) : base(methodInfo, key) { }
+		public ActionDescriptor(MethodInfo methodInfo, string key) : base(methodInfo, key)
+		{
+			Action = LambdaBuilder.CreateAction(methodInfo);
+		}
 
-		public Action<object, object[]> Action { get; set; }
+		public Action<object, object[]> Action { get; private set; }
 	}
 
 	class FuncDescriptor : MethodDescriptor
 	{
-		public FuncDescriptor(MethodInfo methodInfo, string key) : base(methodInfo, key) { }
+		public FuncDescriptor(MethodInfo methodInfo, string key) : base(methodInfo, key)
+		{
+			Func = LambdaBuilder.CreateFunction(methodInfo);
+		}
 		public Type ReturnType { get { return MethodInfo.ReturnType; } }
-		public Func<object, object[],object> Func { get; set; }
+		public Func<object, object[],object> Func { get; private set; }
 	}
 }
