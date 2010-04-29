@@ -4,7 +4,7 @@ using System.Reflection;
 using ActionContainer.Framework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace ActionContainer.Test
+namespace ActionContainer.Test.Framework
 {
 	[TestClass]
 	public class ExpressionPerformanceTest

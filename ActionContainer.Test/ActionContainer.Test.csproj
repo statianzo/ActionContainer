@@ -52,8 +52,8 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ExpressionPerformanceTest.cs" />
-    <Compile Include="LambdaBuilderTests.cs" />
+    <Compile Include="Framework\ExpressionPerformanceTest.cs" />
+    <Compile Include="Framework\LambdaBuilderTests.cs" />
     <Compile Include="MockedTest.cs" />
     <Compile Include="ServiceAgentTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
