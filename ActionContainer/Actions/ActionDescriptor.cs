@@ -1,30 +1,10 @@
 using System;
-using System.Linq;
 using System.Reflection;
 using ActionContainer.Framework;
 
 namespace ActionContainer.Actions
 {
-	public abstract class MethodDescriptor
-	{
-		protected MethodDescriptor(MethodInfo methodInfo, string key)
-		{
-			MethodInfo = methodInfo;
-			RegisteredTypeKey = key;
-			ParameterTypes = methodInfo.GetParameters().Select(p => p.ParameterType).ToArray();
-
-		}
-
-		public MethodInfo MethodInfo { get; set; }
-
-		public string RegisteredTypeKey { get; set; }
-
-		public Type[] ParameterTypes { get; private set; }
-
-		public string Name { get { return MethodInfo.Name; } }
-	}
-
-	class ActionDescriptor : MethodDescriptor
+	public class ActionDescriptor : MethodDescriptor
 	{
 		public ActionDescriptor(MethodInfo methodInfo, string key) : base(methodInfo, key)
 		{
@@ -32,15 +12,5 @@ namespace ActionContainer.Actions
 		}
 
 		public Action<object, object[]> Action { get; private set; }
-	}
-
-	class FuncDescriptor : MethodDescriptor
-	{
-		public FuncDescriptor(MethodInfo methodInfo, string key) : base(methodInfo, key)
-		{
-			Func = LambdaBuilder.CreateFunction(methodInfo);
-		}
-		public Type ReturnType { get { return MethodInfo.ReturnType; } }
-		public Func<object, object[],object> Func { get; private set; }
 	}
 }

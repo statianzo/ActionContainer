@@ -49,6 +49,8 @@
   <ItemGroup>
     <Compile Include="Actions\ActionDescriptor.cs" />
     <Compile Include="ActionContainerBootstrapper.cs" />
+    <Compile Include="Actions\FuncDescriptor.cs" />
+    <Compile Include="Actions\MethodDescriptor.cs" />
     <Compile Include="Framework\CompositeFilter.cs" />
     <Compile Include="Framework\CompositePredicate.cs" />
     <Compile Include="Services\IActionContainerRegistrationService.cs" />
