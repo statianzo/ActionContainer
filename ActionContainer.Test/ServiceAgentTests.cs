@@ -1,7 +1,10 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
+using System.Threading;
 using ActionContainer.Actions;
 using ActionContainer.Services;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -40,9 +43,11 @@ namespace ActionContainer.Test
 		{
 			MethodInfo voidMeth = typeof(EmptyProvider).GetMethod("VoidMethod");
 			MethodInfo funcMeth = typeof(EmptyProvider).GetMethod("FuncMethod");
+			MethodInfo randToListMeth = typeof(EmptyProvider).GetMethod("AddRandomToList");
 			var funcDescriptor = new FuncDescriptor(funcMeth, "1");
 			var actionDescriptor = new ActionDescriptor(voidMeth, "2");
-			return new MethodDescriptor[] { funcDescriptor, actionDescriptor };
+			var randToListDescriptor = new ActionDescriptor(randToListMeth, "3");
+			return new MethodDescriptor[] { funcDescriptor, actionDescriptor, randToListDescriptor };
 		}
 
 		[TestMethod]
@@ -100,6 +105,30 @@ namespace ActionContainer.Test
 			Console.WriteLine("Dynamic Call\tIterations: {0} Time: {1} ms", iterations, stopwatch.ElapsedMilliseconds);
 		}
 
+		[TestMethod]
+		public void ThreadedCalling()
+		{
+			int iterations = 10000;
+			dynamic dynoAgent = _serviceAgent;
+			var nums = Queue.Synchronized(new Queue());
+			Action a = () =>
+				{
+					for (int i = 0; i < iterations; i++)
+						dynoAgent.AddRandomToList(nums);
+				};
+
+			var asyncResults = new List<IAsyncResult>();
+			for (int t = 0; t < 64; t++)
+			{
+				asyncResults.Add(a.BeginInvoke(null, a));
+			}
+
+			while (asyncResults.Any(x => !x.IsCompleted))
+				Thread.Sleep(1000);
+
+			Assert.AreEqual(640000, nums.Count);
+		}
+
 
 		private class EmptyProvider : IActionProvider
 		{
@@ -117,6 +146,11 @@ namespace ActionContainer.Test
 			{
 				FuncInvoked = true;
 				return s;
+			}
+
+			public void AddRandomToList(Queue nums)
+			{
+				nums.Enqueue(_rand.Next());
 			}
 		}
 

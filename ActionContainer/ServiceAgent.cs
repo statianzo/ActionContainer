@@ -5,26 +5,15 @@ using System.Linq;
 using System.Reflection;
 using ActionContainer.Actions;
 using ActionContainer.Framework;
+using ActionContainer.Framework.Extensions;
 using ActionContainer.Services;
-using Microsoft.CSharp.RuntimeBinder;
 
 namespace ActionContainer
 {
 	public class ServiceAgent : DynamicObject
 	{
-		private static readonly Func<object, object[], object> ResultDiscarded;
-
 		private readonly IActionContainerResolvingService _resolvingService;
 
-		static ServiceAgent()
-		{
-			Type type = typeof (CSharpBinderFlags)
-				.Assembly
-				.GetType("Microsoft.CSharp.RuntimeBinder.ICSharpInvokeOrInvokeMemberBinder");
-			PropertyInfo prop = type
-				.GetProperty("ResultDiscarded");
-			ResultDiscarded = LambdaBuilder.CreatePropertyFunction(prop);
-		}
 
 		public ServiceAgent(IActionContainerResolvingService resolvingService)
 		{
@@ -45,18 +34,14 @@ namespace ActionContainer
 
 		public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
 		{
-			var descriptors =
-				_resolvingService
-					.Resolve(typeof (IEnumerable<MethodDescriptor>), "MethodDescriptors") as IEnumerable<MethodDescriptor>;
-			if (descriptors == null || !descriptors.Any())
-				throw new InvalidOperationException("No MethodDescriptors have been registered");
+			var comparer = new TypeIsOfBaseComparer();
 
-			var isDiscarded = (bool) ResultDiscarded(binder, null);
-			IEnumerable<Type> parameterTypes = (args != null && args.Length > 0) ? args.Select(x => x.GetType()) : new Type[0];
-			IEnumerable<MethodDescriptor> filtered = descriptors
+			IEnumerable<MethodDescriptor> filtered = GetDescriptors()
 				.Where(x => x.Name == binder.Name
-				            && parameterTypes.SequenceEqual(x.ParameterTypes));
-			if (isDiscarded)
+							&& x.ParameterTypes.SequenceEqual(args.ToTypes(), comparer))
+				.ToList();
+
+			if (binder.ResultDiscarded())
 			{
 				var action = GetMethod<ActionDescriptor>(filtered);
 				object instance = GetInstanceFromMethodDescriptor(action);
@@ -67,26 +52,37 @@ namespace ActionContainer
 			else
 			{
 				IEnumerable<FuncDescriptor> funcs = filtered.OfType<FuncDescriptor>();
-				result = new ServiceAgent(_resolvingService) {PossibleMethods = funcs, Args = args};
+				result = new ServiceAgent(_resolvingService) { PossibleMethods = funcs, Args = args };
 			}
 			return true;
 		}
 
+
+		private IEnumerable<MethodDescriptor> GetDescriptors()
+		{
+			var descriptors =
+				_resolvingService
+					.Resolve(typeof(IEnumerable<MethodDescriptor>), "MethodDescriptors") as IEnumerable<MethodDescriptor>;
+			if (descriptors == null || !descriptors.Any())
+				throw new InvalidOperationException("No MethodDescriptors have been registered");
+			return descriptors;
+		}
+
 		private static T GetMethod<T>(IEnumerable<MethodDescriptor> filtered) where T : MethodDescriptor
 		{
-			IEnumerable<T> actions = filtered.OfType<T>();
-			int count = actions.Count();
+			IEnumerable<T> methods = filtered.OfType<T>();
+			int count = methods.Count();
 			if (count > 1)
 				throw new AmbiguousMatchException("Ambiguous Method Match");
 			if (count == 0)
 				throw new MissingMethodException("Method not found");
 
-			return actions.Single();
+			return methods.Single();
 		}
 
 		private object GetInstanceFromMethodDescriptor(MethodDescriptor descriptor)
 		{
-			return _resolvingService.Resolve(typeof (IActionProvider), descriptor.RegisteredTypeKey);
+			return _resolvingService.Resolve(typeof(IActionProvider), descriptor.RegisteredTypeKey);
 		}
 	}
 }

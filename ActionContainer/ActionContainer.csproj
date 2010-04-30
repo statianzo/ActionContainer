@@ -53,6 +53,10 @@
     <Compile Include="Actions\MethodDescriptor.cs" />
     <Compile Include="Framework\CompositeFilter.cs" />
     <Compile Include="Framework\CompositePredicate.cs" />
+    <Compile Include="Framework\Extensions\EnumerableExtensions.cs" />
+    <Compile Include="Framework\Extensions\InvokeMemberBinderExtensions.cs" />
+    <Compile Include="Framework\SharedBaseTypeComparer.cs" />
+    <Compile Include="ServiceAgentResult.cs" />
     <Compile Include="Services\IActionContainerRegistrationService.cs" />
     <Compile Include="Services\IActionContainerResolvingService.cs" />
     <Compile Include="Services\IActionProvider.cs" />
