@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="AutofacRegistrationService.cs" />
     <Compile Include="AutofacResolvingService.cs" />
+    <Compile Include="LogListener.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SeveralMethods.cs" />

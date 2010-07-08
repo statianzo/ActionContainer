@@ -32,8 +32,12 @@ namespace ActionContainer
 		{
 			var callInfo = new ActionCallInfo
 			{
-				ArgumentNames = binder.CallInfo.ArgumentNames.ToArray(),
-				Arguments = args,
+				NamedArguments = binder.CallInfo
+					.ArgumentNames
+					.Reverse()
+					.Zip(args.Reverse(), (x, y) => new Tuple<string, object>(x, y))
+					.ToList(),
+				UnnamedArguments = args.Take(binder.CallInfo.ArgumentCount - binder.CallInfo.ArgumentNames.Count).ToList(),
 				MethodName = binder.Name
 			};
 			result = binder.ResultDiscarded()
@@ -45,7 +49,7 @@ namespace ActionContainer
 		public object ExecuteListeners(ActionCallInfo callInfo)
 		{
 			object[] actionListeners = _resolvingService.ResolveAll(typeof (IActionListener));
-			IEnumerable<IActionListener> handlers = actionListeners.OfType<IActionListener>().Where(h => h.CanHandle(callInfo));
+			IEnumerable<IActionListener> handlers = actionListeners.Cast<IActionListener>().Where(h => h.CanHandle(callInfo));
 			var context = new ActionListenerContext(callInfo);
 			bool wasHandled = handlers.Any(actionListener => actionListener.Handle(context));
 			if (!wasHandled)

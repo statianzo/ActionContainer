@@ -43,7 +43,7 @@ namespace ActionContainer.Sample
 		public void DoYourThing()
 		{
 			//Void call
-			ServiceAgent.SayHello("Jason");
+			ServiceAgent.SayHello("Jason", log: "Hello");
 
 			ServiceAgent.SayHello();
 

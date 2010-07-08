@@ -40,12 +40,13 @@ namespace ActionContainer
 		}
 		private static void RegisterListeners(IActionContainerRegistrationService registrationService, Assembly assembly)
 		{
+
+			registrationService.Register(typeof(DefaultActionListener), typeof(IActionListener));
 			var types = assembly
 				.GetTypes()
 				.Where(t => typeof(IActionListener).IsAssignableFrom(t));
 			foreach (var type in types)
 				registrationService.Register(type, typeof(IActionListener));
-			registrationService.Register(typeof(DefaultActionListener), typeof(IActionListener));
 		}
 		private void RegisterProvidersAndDescriptors(IActionContainerRegistrationService registrationService, Assembly assembly)
 		{

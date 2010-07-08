@@ -28,7 +28,7 @@ namespace ActionContainer.Impl
 
 			IEnumerable<MethodDescriptor> filtered = GetDescriptors()
 				.Where(x => x.Name == context.CallInfo.MethodName
-							&& x.ParameterTypes.SequenceEqual(context.CallInfo.Arguments.ToTypes(), comparer))
+							&& x.ParameterTypes.SequenceEqual(context.CallInfo.UnnamedArguments.ToTypes(), comparer))
 				.ToList();
 
 			var returnType = context.CallInfo.ReturnType;
@@ -38,7 +38,7 @@ namespace ActionContainer.Impl
 				if (funcDescriptor == null)
 					throw new MissingMethodException("Method not found");
 				var instance = GetInstanceFromMethodDescriptor(funcDescriptor);
-				context.Result = funcDescriptor.Func(instance, context.CallInfo.Arguments);
+				context.Result = funcDescriptor.Func(instance, context.CallInfo.UnnamedArguments.ToArray());
 			}
 			else
 			{
@@ -46,7 +46,7 @@ namespace ActionContainer.Impl
 				if(actionDescriptor == null)
 					throw new MissingMethodException("Method not found");
 				var instance = GetInstanceFromMethodDescriptor(actionDescriptor);
-				actionDescriptor.Action(instance, context.CallInfo.Arguments);
+				actionDescriptor.Action(instance, context.CallInfo.UnnamedArguments.ToArray());
 			}
 			return true;
 		}
