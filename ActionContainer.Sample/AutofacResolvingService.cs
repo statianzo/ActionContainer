@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using ActionContainer.Services;
 using Autofac;
 using Autofac.Core;
@@ -24,6 +26,12 @@ namespace ActionContainer.Sample
 		{
 			var container = _containerFunc();
 			return container.Resolve(new KeyedService(key,service));
+		}
+
+		public object[] ResolveAll(Type service)
+		{
+			var container = _containerFunc();
+			return ((IEnumerable<object>) container.Resolve(typeof (IEnumerable<>).MakeGenericType(service))).ToArray();
 		}
 	}
 }

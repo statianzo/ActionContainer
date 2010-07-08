@@ -52,17 +52,21 @@
     <Compile Include="Actions\FuncDescriptor.cs" />
     <Compile Include="Actions\MethodDescriptor.cs" />
     <Compile Include="Actions\MethodDescriptorFactory.cs" />
+    <Compile Include="Framework\ActionCallInfo.cs" />
+    <Compile Include="Framework\ActionListenerContext.cs" />
     <Compile Include="Framework\CompositeFilter.cs" />
     <Compile Include="Framework\CompositePredicate.cs" />
     <Compile Include="Framework\Extensions\EnumerableExtensions.cs" />
     <Compile Include="Framework\Extensions\InvokeMemberBinderExtensions.cs" />
     <Compile Include="Framework\SharedBaseTypeComparer.cs" />
+    <Compile Include="Impl\DefaultActionListener.cs" />
     <Compile Include="Services\IActionContainerRegistrationService.cs" />
     <Compile Include="Services\IActionContainerResolvingService.cs" />
     <Compile Include="Services\IActionProvider.cs" />
     <Compile Include="Framework\LambdaBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceAgent.cs" />
+    <Compile Include="Services\IActionListener.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

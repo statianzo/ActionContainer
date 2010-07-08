@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Dynamic;
 using System.Reflection;
+using ActionContainer.Services;
 using Autofac;
 
 namespace ActionContainer.Sample
@@ -21,10 +22,12 @@ namespace ActionContainer.Sample
 				})
 				.InitializeContainer(serviceProvider, Assembly.GetExecutingAssembly());
 
+			builder.RegisterInstance<IActionContainerResolvingService>(resolver);
 			builder.RegisterAssemblyTypes(typeof(Program).Assembly)
 				.AssignableTo<IDependOnSomething>()
 				.WithProperty("ServiceAgent", new ServiceAgent(resolver))
 				.AsImplementedInterfaces();
+
 
 
 			container = builder.Build();

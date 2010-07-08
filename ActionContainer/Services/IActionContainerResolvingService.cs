@@ -6,5 +6,6 @@ namespace ActionContainer.Services
 	{
 		object Resolve(Type service);
 		object Resolve(Type service, string key);
+		object[] ResolveAll(Type service);
 	}
 }

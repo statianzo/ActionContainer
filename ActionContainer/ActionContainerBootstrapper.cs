@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using ActionContainer.Actions;
 using ActionContainer.Framework;
+using ActionContainer.Impl;
 using ActionContainer.Services;
 
 namespace ActionContainer
@@ -35,8 +36,17 @@ namespace ActionContainer
 		public void InitializeContainer(IActionContainerRegistrationService registrationService, Assembly assembly)
 		{
 			RegisterProvidersAndDescriptors(registrationService, assembly);
+			RegisterListeners(registrationService, assembly);
 		}
-
+		private static void RegisterListeners(IActionContainerRegistrationService registrationService, Assembly assembly)
+		{
+			var types = assembly
+				.GetTypes()
+				.Where(t => typeof(IActionListener).IsAssignableFrom(t));
+			foreach (var type in types)
+				registrationService.Register(type, typeof(IActionListener));
+			registrationService.Register(typeof(DefaultActionListener), typeof(IActionListener));
+		}
 		private void RegisterProvidersAndDescriptors(IActionContainerRegistrationService registrationService, Assembly assembly)
 		{
 			var types = assembly

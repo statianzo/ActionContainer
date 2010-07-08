@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
-using System.Reflection;
-using ActionContainer.Actions;
 using ActionContainer.Framework;
 using ActionContainer.Framework.Extensions;
 using ActionContainer.Services;
@@ -20,69 +18,39 @@ namespace ActionContainer
 			_resolvingService = resolvingService;
 		}
 
-		private IEnumerable<FuncDescriptor> PossibleMethods { get; set; }
-		private object[] Args { get; set; }
+		public ActionCallInfo CallInfo { get; set; }
+
 
 		public override bool TryConvert(ConvertBinder binder, out object result)
 		{
-			IEnumerable<FuncDescriptor> funcs = PossibleMethods.Where(x => binder.ReturnType.IsAssignableFrom(x.ReturnType));
-			var funcDescriptor = GetMethod<FuncDescriptor>(funcs);
-			object instance = GetInstanceFromMethodDescriptor(funcDescriptor);
-			result = funcDescriptor.Func(instance, Args);
+			CallInfo.ReturnType = binder.ReturnType;
+			result = ExecuteListeners(CallInfo);
 			return true;
 		}
 
 		public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
 		{
-			var comparer = new TypeIsOfBaseComparer();
-
-			IEnumerable<MethodDescriptor> filtered = GetDescriptors()
-				.Where(x => x.Name == binder.Name
-							&& x.ParameterTypes.SequenceEqual(args.ToTypes(), comparer))
-				.ToList();
-
-			if (binder.ResultDiscarded())
+			var callInfo = new ActionCallInfo
 			{
-				var action = GetMethod<ActionDescriptor>(filtered);
-				object instance = GetInstanceFromMethodDescriptor(action);
-
-				action.Action(instance, args);
-				result = null;
-			}
-			else
-			{
-				IEnumerable<FuncDescriptor> funcs = filtered.OfType<FuncDescriptor>();
-				result = new ServiceAgent(_resolvingService) { PossibleMethods = funcs, Args = args };
-			}
+				ArgumentNames = binder.CallInfo.ArgumentNames.ToArray(),
+				Arguments = args,
+				MethodName = binder.Name
+			};
+			result = binder.ResultDiscarded()
+			         	? ExecuteListeners(callInfo)
+			         	: new ServiceAgent(_resolvingService) {CallInfo = callInfo};
 			return true;
 		}
 
-
-		private IEnumerable<MethodDescriptor> GetDescriptors()
+		public object ExecuteListeners(ActionCallInfo callInfo)
 		{
-			var descriptors =
-				_resolvingService
-					.Resolve(typeof(IEnumerable<MethodDescriptor>), "MethodDescriptors") as IEnumerable<MethodDescriptor>;
-			if (descriptors == null || !descriptors.Any())
-				throw new InvalidOperationException("No MethodDescriptors have been registered");
-			return descriptors;
-		}
-
-		private static T GetMethod<T>(IEnumerable<MethodDescriptor> filtered) where T : MethodDescriptor
-		{
-			IEnumerable<T> methods = filtered.OfType<T>();
-			int count = methods.Count();
-			if (count > 1)
-				throw new AmbiguousMatchException("Ambiguous Method Match");
-			if (count == 0)
-				throw new MissingMethodException("Method not found");
-
-			return methods.Single();
-		}
-
-		private object GetInstanceFromMethodDescriptor(MethodDescriptor descriptor)
-		{
-			return _resolvingService.Resolve(typeof(IActionProvider), descriptor.RegisteredTypeKey);
+			object[] actionListeners = _resolvingService.ResolveAll(typeof (IActionListener));
+			IEnumerable<IActionListener> handlers = actionListeners.OfType<IActionListener>().Where(h => h.CanHandle(callInfo));
+			var context = new ActionListenerContext(callInfo);
+			bool wasHandled = handlers.Any(actionListener => actionListener.Handle(context));
+			if (!wasHandled)
+				throw new InvalidOperationException("No handler for call");
+			return context.Result;
 		}
 	}
 }
