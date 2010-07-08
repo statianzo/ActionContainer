@@ -19,14 +19,15 @@ namespace ActionContainer
 	{
 		private readonly CompositeFilter<MethodInfo> _methodFilters = new CompositeFilter<MethodInfo>();
 
-		public ActionContainerBootstrapper(Action<ActionContainerBootstrapper> configure) : this()
+		public ActionContainerBootstrapper(Action<ActionContainerBootstrapper> configure)
+			: this()
 		{
 			configure(this);
 		}
 
 		public ActionContainerBootstrapper()
 		{
-			_methodFilters.Excludes += m => m.DeclaringType == typeof (object);
+			_methodFilters.Excludes += m => m.DeclaringType == typeof(object);
 			_methodFilters.Excludes += m => m.ContainsGenericParameters;
 			_methodFilters.Excludes += m => m.IsSpecialName;
 		}
@@ -57,11 +58,8 @@ namespace ActionContainer
 		{
 			return type.GetMethods()
 				.Where(_methodFilters.Matches)
-				.Select(
-					m =>
-					m.ReturnType == typeof(void)
-						? (MethodDescriptor)new ActionDescriptor(m, key)
-						: new FuncDescriptor(m, key)).ToList();
+				.Select(m => MethodDescriptorFactory.Create(m, key))
+				.ToList();
 		}
 
 		public IActionContainerConfiguration IgnoreMethodsDeclaredBy<T>()

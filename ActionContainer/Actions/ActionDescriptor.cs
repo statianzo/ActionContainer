@@ -1,16 +1,12 @@
 using System;
-using System.Reflection;
-using ActionContainer.Framework;
 
 namespace ActionContainer.Actions
 {
 	public class ActionDescriptor : MethodDescriptor
 	{
-		public ActionDescriptor(MethodInfo methodInfo, string key) : base(methodInfo, key)
+		public Action<object, object[]> Action
 		{
-			Action = LambdaBuilder.CreateAction(methodInfo);
+			get { return (Action<object, object[]>) Delegate; }
 		}
-
-		public Action<object, object[]> Action { get; private set; }
 	}
 }

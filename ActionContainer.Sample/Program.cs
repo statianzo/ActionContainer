@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Dynamic;
 using System.Reflection;
 using Autofac;
 
@@ -46,6 +47,8 @@ namespace ActionContainer.Sample
 			//Receive an int
 			int rand = ServiceAgent.GenerateRandom();
 			Console.WriteLine("Random of {0}", rand);
+			string password = ServiceAgent.GeneratePassword();
+			Console.WriteLine(password);
 		}
 	}
 

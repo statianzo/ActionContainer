@@ -1,16 +1,17 @@
 ﻿using System;
-using System.Reflection;
-using ActionContainer.Framework;
 
 namespace ActionContainer.Actions
 {
 	public class FuncDescriptor : MethodDescriptor
 	{
-		public FuncDescriptor(MethodInfo methodInfo, string key) : base(methodInfo, key)
+		public Type ReturnType
 		{
-			Func = LambdaBuilder.CreateFunction(methodInfo);
+			get { return MethodInfo.ReturnType; }
 		}
-		public Type ReturnType { get { return MethodInfo.ReturnType; } }
-		public Func<object, object[],object> Func { get; private set; }
+
+		public Func<object, object[], object> Func
+		{
+			get { return (Func<object, object[], object>) Delegate; }
+		}
 	}
 }

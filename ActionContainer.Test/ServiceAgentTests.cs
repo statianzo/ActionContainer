@@ -44,9 +44,9 @@ namespace ActionContainer.Test
 			MethodInfo voidMeth = typeof(EmptyProvider).GetMethod("VoidMethod");
 			MethodInfo funcMeth = typeof(EmptyProvider).GetMethod("FuncMethod");
 			MethodInfo randToListMeth = typeof(EmptyProvider).GetMethod("AddRandomToList");
-			var funcDescriptor = new FuncDescriptor(funcMeth, "1");
-			var actionDescriptor = new ActionDescriptor(voidMeth, "2");
-			var randToListDescriptor = new ActionDescriptor(randToListMeth, "3");
+			var funcDescriptor = MethodDescriptorFactory.Create(funcMeth, "1");
+			var actionDescriptor = MethodDescriptorFactory.Create(voidMeth, "2");
+			var randToListDescriptor = MethodDescriptorFactory.Create(randToListMeth, "3");
 			return new MethodDescriptor[] { funcDescriptor, actionDescriptor, randToListDescriptor };
 		}
 
