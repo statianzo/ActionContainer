@@ -32,7 +32,7 @@ namespace ActionContainer.Sample
 
 			container = builder.Build();
 			var depender = container.Resolve<IDependOnSomething>();
-			depender.DoYourThing();
+			depender.UseServiceAgent();
 		}
 	}
 
@@ -40,24 +40,35 @@ namespace ActionContainer.Sample
 	{
 		public dynamic ServiceAgent { get; set; }
 
-		public void DoYourThing()
+		public void UseServiceAgent()
 		{
 			//Void call
-			ServiceAgent.SayHello("Jason", log: "Hello");
-
 			ServiceAgent.SayHello();
+
+            //Should get trimmed
+			ServiceAgent.SayHello("              Jason          ");
 
 			//Receive an int
 			int rand = ServiceAgent.GenerateRandom();
 			Console.WriteLine("Random of {0}", rand);
+
+			//Recieve string
 			string password = ServiceAgent.GeneratePassword();
 			Console.WriteLine(password);
+
+			//Recieve int from same name
+			int numberPassword = ServiceAgent.GeneratePassword();
+			Console.WriteLine(numberPassword);
+
+			//Lets log it
+			numberPassword = ServiceAgent.GeneratePassword(log: true);
+			Console.WriteLine(numberPassword);
 		}
 	}
 
 	public interface IDependOnSomething
 	{
 		dynamic ServiceAgent { get; set; }
-		void DoYourThing();
+		void UseServiceAgent();
 	}
 }

@@ -3,7 +3,7 @@ using ActionContainer.Services;
 
 namespace ActionContainer.Sample
 {
-	public class SeveralMethods : IActionProvider
+	public class HelloProvider : IActionProvider
 	{
 		public void SayHello()
 		{
@@ -18,24 +18,6 @@ namespace ActionContainer.Sample
 		{
 			Console.WriteLine("Your name is {0} and your age is {1}", name, age);
 		}
-	}
 
-	public class RandomMan : IActionProvider
-	{
-		public int GenerateRandom()
-		{
-			var random = new Random();
-			return random.Next();
-		}
-
-		
-	}
-
-	public class PassGen: IActionProvider
-	{
-		public string GeneratePassword()
-		{
-			return "RANDOMPASSWORD";
-		}
 	}
 }

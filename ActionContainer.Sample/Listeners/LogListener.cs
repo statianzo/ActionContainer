@@ -1,10 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using ActionContainer.Framework;
 using ActionContainer.Services;
 
-namespace ActionContainer.Sample
+namespace ActionContainer.Sample.Listeners
 {
 	public class LogListener : IActionListener
 	{
@@ -17,9 +16,16 @@ namespace ActionContainer.Sample
 		{
 
 			var arg = context.CallInfo.NamedArguments.FirstOrDefault(x => x.Item1.Equals("log", StringComparison.OrdinalIgnoreCase));
-			if (arg == null)
+			if (arg == null || !(arg.Item2 is bool) || !(bool)arg.Item2)
 				return false;
-			Console.WriteLine("LOG: {0}",arg.Item2);
+			var unnamed = context.CallInfo.UnnamedArguments;
+			Console.Write("Calling {0}({1}) with Args: ", context.CallInfo.MethodName, context.CallInfo.ReturnType);
+			for (int i = 0; i < unnamed.Count; i++)
+			{
+				var val = unnamed[i];
+				Console.Write("input{0}: {1} ", i, val);
+			}
+			Console.WriteLine();
 			return false;
 		}
 	}
